@@ -1,0 +1,34 @@
+services:
+  bridge:
+    build: .
+    container_name: mt5-bridge-webull
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Persists the Webull session file (and logs, if LOG_FILE is set)
+      # across container restarts/recreations so you don't need to
+      # re-run the interactive login every time.
+      - ./data:/app/data
+
+  # One-time interactive login: `docker compose run --rm bridge-login`
+  # Not part of `docker compose up` -- it needs a human to type the MFA
+  # code Webull sends, so it must run attached to a terminal (`run`, not
+  # `up`), and only needs to run once (or again if the session expires
+  # and can't auto-refresh).
+  bridge-login:
+    build: .
+    profiles: ["login"]
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./data:/app/data
+    stdin_open: true
+    tty: true
+    entrypoint: ["python", "scripts/webull_login.py"]

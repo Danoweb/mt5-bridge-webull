@@ -157,6 +157,11 @@ ENV/
 env.bak/
 venv.bak/
 
+# mt5-bridge-webull runtime data (Webull session tokens, logs) -- never
+# commit these, they're both secrets and machine-specific state.
+data/*
+!data/.gitkeep
+
 # Spyder project settings
 .spyderproject
 .spyproject
